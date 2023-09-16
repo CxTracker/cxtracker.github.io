@@ -29,14 +29,39 @@
             bottom: 0;
             width: 100%;
         }
+#locationStatus {
+    text-align: center; 
+    position: relative; 
+    width: 100%;
+    height: 100%;
+}
+
+.fullscreen-image {
+    max-width: 100%; 
+    max-height: 100%; 
+    width: auto; 
+    height: auto; 
+}
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff; 
+}
     </style>
 </head>
 <body>
     <div id="header">
         <h1>Real-Time Cx Tracker</h1>
     </div>
+<div id="mapContainer">
     <div id="map"></div>
-    <div id="locationStatus"></div>
+</div>
+<div id="locationStatus">
+    <div id="locationDisabledImage">
+        <img class="fullscreen-image" src="https://i.imgur.com/CZICUyk.png" alt="Location Disabled Image">
+    </div>
+</div>
     <div id="footer">
         <p>&copy; Rishi Sunak</p>
     </div>
@@ -51,40 +76,44 @@
         }).addTo(map);
 
 
-    function updateLocation() {
-        fetch('https://bakery.hop.sh/v1/ext/locations/sam')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data) {
-                    var lat = parseFloat(data.data.latitude);
-                    var lng = parseFloat(data.data.longitude);
+function updateLocation() {
+    fetch('https://bakery.hop.sh/v1/ext/locations/sam')
+        .then(response => response.json())
+        .then(data => {
+            var mapContainer = document.getElementById('mapContainer');
+            var locationStatusElement = document.getElementById('locationStatus');
+            var locationDisabledImage = document.getElementById('locationDisabledImage');
 
-                    if (marker === null) {
-                        marker = L.marker([lat, lng]).addTo(map);
-                    } else {
-                        marker.setLatLng([lat, lng]);
-                    }
+            if (data.success && data.data) {
+                var lat = parseFloat(data.data.latitude);
+                var lng = parseFloat(data.data.longitude);
 
-                    map.setView([lat, lng]);
-
-                    document.getElementById('map').style.display = 'block';
-
-                    document.getElementById('locationStatus').style.display = 'none';
+                if (marker === null) {
+                    marker = L.marker([lat, lng]).addTo(map);
                 } else {
-                    document.getElementById('map').style.display = 'none';
-
-                    document.getElementById('locationStatus').style.display = 'block';
-                    document.getElementById('locationStatus').textContent = "Sorry, Location is currently Disabled";
+                    marker.setLatLng([lat, lng]);
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching location:', error);
-            });
-    }
 
-    updateLocation();
+                map.setView([lat, lng]);
 
-    setInterval(updateLocation, 2000);
+                mapContainer.style.display = 'block';
+                locationStatusElement.style.display = 'none';
+                locationDisabledImage.style.display = 'none';
+            } else {
+                mapContainer.style.display = 'none';
+                locationStatusElement.style.display = 'block';
+                locationDisabledImage.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching location:', error);
+        });
+}
+
+updateLocation();
+
+
+setInterval(updateLocation, 2000);
 </script>
 </body>
 </html>
