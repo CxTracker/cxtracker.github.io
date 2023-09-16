@@ -52,43 +52,31 @@
         }).addTo(map);
 
         // Function to update the marker with a new location
-        function updateLocation() {
-            // Make a request to the API to get the current location
-            fetch('https://bakery.hop.sh/v1/ext/botrix/locations/sam')
-                .then(response => response.text())
-                .then(data => {
-                    // Extract the coordinates from the Google Maps URL
-                    var regex = /-?\d+\.\d+,-?\d+\.\d+/;
-                    var match = data.match(regex);
+function fetchAndUpdateLocation() {
+    // Make a request to the new API to get the current location
+    fetch('https://bakery.hop.sh/v1/ext/locations/sam')
+        .then(response => response.json()) // Parse JSON response
+        .then(data => {
+            if (data.success) {
+                var lat = parseFloat(data.data.latitude);
+                var lng = parseFloat(data.data.longitude);
 
-                    if (match) {
-                        var location = match[0].split(',');
-                        var lat = parseFloat(location[0]);
-                        var lng = parseFloat(location[1]);
-
-                        // Update the marker's location
-                        if (marker === null) {
-                            marker = L.marker([lat, lng]).addTo(map);
-                        } else {
-                            marker.setLatLng([lat, lng]);
-                        }
-
-                        // Set the map's center to the new location without changing the zoom level
-                        map.setView([lat, lng]);
-                    } else {
-                        console.error('Invalid location data:', data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching location:', error);
-                });
-        }
+                // Update the marker's location with the new GPS data
+                updateLocation(lat, lng);
+            } else {
+                console.error('Invalid location data:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching location:', error);
+        });
+}
 
         // Call the updateLocation function initially
         updateLocation();
 
         // Update the location every 10 seconds (adjust as needed)
-        setInterval(updateLocation, 10000);
+        setInterval(updateLocation, 6000);
     </script>
 </body>
 </html>
