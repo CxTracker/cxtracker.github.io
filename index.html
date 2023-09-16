@@ -6,7 +6,6 @@
     <title>Real-Time Cx Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
-        /* Set the map container size */
         #map {
             height: 80vh;
             width: 100%;
@@ -43,46 +42,37 @@
     </div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Create a map centered on a default location with an initial zoom level
-        var map = L.map('map').setView([0, 0], 18); // Adjust the zoom level as needed
-        var marker = null; // Initialize a marker variable
 
-        // Add OpenStreetMap tiles as the base layer
+        var map = L.map('map').setView([0, 0], 18); 
+        var marker = null; 
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Function to update the marker with a new location
+
     function updateLocation() {
-        // Make a request to the updated API to get the current location
         fetch('https://bakery.hop.sh/v1/ext/locations/sam')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.data) {
-                    // Extract longitude and latitude from the response
                     var lat = parseFloat(data.data.latitude);
                     var lng = parseFloat(data.data.longitude);
 
-                    // Update the marker's location
                     if (marker === null) {
                         marker = L.marker([lat, lng]).addTo(map);
                     } else {
                         marker.setLatLng([lat, lng]);
                     }
 
-                    // Set the map's center to the new location without changing the zoom level
                     map.setView([lat, lng]);
 
-                    // Show the map if it was previously hidden
                     document.getElementById('map').style.display = 'block';
 
-                    // Hide the location status message
                     document.getElementById('locationStatus').style.display = 'none';
                 } else {
-                    // Hide the map and display a message
                     document.getElementById('map').style.display = 'none';
 
-                    // Show the location status message
                     document.getElementById('locationStatus').style.display = 'block';
                     document.getElementById('locationStatus').textContent = "Sorry, Location is currently Disabled";
                 }
@@ -92,10 +82,8 @@
             });
     }
 
-    // Call the updateLocation function initially
     updateLocation();
 
-    // Update the location every 10 seconds (adjust as needed)
     setInterval(updateLocation, 2000);
 </script>
 </body>
