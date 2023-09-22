@@ -100,7 +100,7 @@ body {
                 max-width: 100%;
                 overflow: hidden;
                 position: relative;
-                height: auto;
+                height: auto; /* Added to prevent an empty space under the footer */
             }
             
             #map {
@@ -112,7 +112,6 @@ body {
                 padding: 5px;
                 position: relative;
                 width: 100%;
-                margin-top: -23px; /* Adjust this value to remove the black box */
             }
             
             #iconButtons {
@@ -128,7 +127,7 @@ body {
             
             .icon {
                 width: 48px; /* Increase icon size for mobile */
-                height: 48px; 
+                height: 48px; /* Increase icon size for mobile */
             }
         }
     </style>
