@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Cx Tracker">
-    <meta property="og:description" content="Want to stream snipe Ice Poseidon, Sam, Joel or Zuckles in their 24/7 Australia Livestream? <br>
+    <meta property="og:description" content="Want to stream snipe Ice Poseidon, Sam or Jack The Ripper in their 24/7 Australia Livestream? <br>
         Use this site to see their exact location!">
     <meta property="og:url" content="https://cxtracker.github.io/">
     <title>Real-Time Cx Tracker</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>
     <style>
         #map {
             height: 90vh;
@@ -134,11 +137,20 @@ body {
     width: 100%;
 }
 }
+    #header h1 {
+        margin: 0; /* Add this line to remove the top margin of the h1 element */
+    }
+
+    #currentLocation {
+        font-size: 16px;
+        margin-top: 5px; /* Add this line to adjust the spacing between h1 and h2 */
+    }
     </style>
 </head>
 <body>
     <div id="header">
         <h1>Real-Time Cx Tracker</h1>
+        <h2 id="currentLocation" style="font-size: 16px;">Current Location:</h2>
         </div>
     </div>
 <div id="mapContainer">
@@ -165,32 +177,56 @@ body {
         </div>
     </div>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-        <script>
-        var map = L.map('map').setView([0, 0], 18);
-        var marker = null;
-        var currentIcon = 'goblin'; 
+<script>
+    var map = L.map('map').setView([0, 0], 18);
+    var marker = null;
+    var currentIcon = 'goblin';
 
+    var goblinIcon = L.icon({
+        iconUrl: 'https://cdn.discordapp.com/emojis/733790140840804352.webp',
+        iconSize: [32, 47],
+        iconAnchor: [16, 32],
+    });
 
-        var goblinIcon = L.icon({
-            iconUrl: 'https://cdn.discordapp.com/emojis/733790140840804352.webp',
-            iconSize: [32, 47], 
-            iconAnchor: [16, 32],
-        });
+    var samiceIcon = L.icon({
+        iconUrl: 'https://i.imgur.com/gUZw1RT.png',
+        iconSize: [65, 46],
+        iconAnchor: [35, 32],
+    });
 
-        var samiceIcon = L.icon({
-            iconUrl: 'https://i.imgur.com/gUZw1RT.png', 
-            iconSize: [65, 46],
-            iconAnchor: [35, 32],
-        });
+    var pepperIcon = L.icon({
+        iconUrl: 'https://cdn.discordapp.com/emojis/1063947065165619240.webp',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+    });
 
-        var pepperIcon = L.icon({
-            iconUrl: 'https://cdn.discordapp.com/emojis/1063947065165619240.webp', 
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-        });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Click event handler for the map
+    map.on('click', function (e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        // Perform reverse geocoding using Nominatim
+        fetch('https://geocode.maps.co/reverse?lat=' + lat + '&lon=' + lng)
+            .then(response => response.json())
+            .then(data => {
+                if (data.display_name) {
+                    // Create a marker with a popup containing the reverse geocoded address
+                    var popup = L.popup()
+                        .setLatLng([lat, lng])
+                        .setContent(data.display_name)
+                        .openOn(map);
+                } else {
+                    console.error('Error fetching reverse geocoding data');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching reverse geocoding data:', error);
+            });
+    });
 
         function updateLocation() {
             fetch('https://bakery.hop.sh/v1/ext/locations/sam')
@@ -228,29 +264,62 @@ body {
                 });
         }
 
+    updateLocation();
+
+    setInterval(updateLocation, 2000);
+
+    function changeIcon(iconType) {
+        currentIcon = iconType;
         updateLocation();
+    }
 
-        setInterval(updateLocation, 2000);
-
-        
-        function changeIcon(iconType) {
-            currentIcon = iconType;
-            updateLocation(); 
+    function getSelectedIcon() {
+        switch (currentIcon) {
+            case 'goblin':
+                return goblinIcon;
+            case 'samice':
+                return samiceIcon;
+            case 'pepper':
+                return pepperIcon;
+            default:
+                return goblinIcon;
         }
+    }
+    
+    function updateCurrentAddress() {
+    if (marker) {
+        var lat = marker.getLatLng().lat;
+        var lng = marker.getLatLng().lng;
 
-        function getSelectedIcon() {
-            switch (currentIcon) {
-                case 'goblin':
-                    return goblinIcon;
-                case 'samice':
-                    return samiceIcon;
-                case 'pepper':
-                    return pepperIcon;
-                default:
-                    return goblinIcon; 
-            }
-        }
-    </script>
+        var headers = new Headers({
+            'User-Agent': 'CxTracker'
+        });
+
+        var request = new Request('https://geocode.maps.co/reverse?lat=' + lat + '&lon=' + lng, {
+            method: 'GET',
+            headers: headers
+        });
+
+        fetch(request)
+            .then(response => response.json())
+            .then(data => {
+                if (data.display_name) {
+                    var currentLocationText = 'Current Location: ' + data.display_name;
+                    document.getElementById('currentLocation').textContent = currentLocationText;
+                } else {
+                    console.error('Error fetching reverse geocoding data');
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching reverse geocoding data:', error);
+            });
+    }
+}
+
+    updateCurrentAddress();
+
+    setInterval(updateCurrentAddress, 5000); 
+</script>
 
 <div id="madeBy">
     Made By Rishi Sunak
