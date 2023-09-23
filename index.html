@@ -138,12 +138,12 @@ body {
 }
 }
     #header h1 {
-        margin: 0; /* Add this line to remove the top margin of the h1 element */
+        margin: 0; 
     }
 
     #currentLocation {
         font-size: 16px;
-        margin-top: 5px; /* Add this line to adjust the spacing between h1 and h2 */
+        margin-top: 5px; 
     }
     </style>
 </head>
@@ -176,8 +176,15 @@ body {
                 <p class="iconLabel">Pepper</p>
         </div>
     </div>
+<button id="toggleTracker">Location History: <span id="trackerState">OFF</span></button>
+
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
+    var locationHistory = [];
+    var locationHistoryPolyline = null;
+    var isTrackerActive = false;
+    var toggleButton = document.getElementById('toggleTracker');
+    var trackerStateSpan = document.getElementById('trackerState');
     var map = L.map('map').setView([0, 0], 18);
     var marker = null;
     var currentIcon = 'goblin';
@@ -204,17 +211,14 @@ body {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Click event handler for the map
     map.on('click', function (e) {
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
 
-        // Perform reverse geocoding using Nominatim
         fetch('https://geocode.maps.co/reverse?lat=' + lat + '&lon=' + lng)
             .then(response => response.json())
             .then(data => {
                 if (data.display_name) {
-                    // Create a marker with a popup containing the reverse geocoded address
                     var popup = L.popup()
                         .setLatLng([lat, lng])
                         .setContent(data.display_name)
@@ -228,45 +232,53 @@ body {
             });
     });
 
-        function updateLocation() {
-            fetch('https://bakery.hop.sh/v1/ext/locations/sam')
-                .then(response => response.json())
-                .then(data => {
-                    var mapContainer = document.getElementById('mapContainer');
-                    var locationStatusElement = document.getElementById('locationStatus');
-                    var locationDisabledImage = document.getElementById('locationDisabledImage');
+    function updateLocation() {
+        fetch('https://bakery.hop.sh/v1/ext/locations/sam')
+          .then(response => response.json())
+          .then(data => {
+              var mapContainer = document.getElementById('mapContainer');
+              var locationStatusElement = document.getElementById('locationStatus');
+              var locationDisabledImage = document.getElementById('locationDisabledImage');
 
-                    if (data.success && data.data) {
-                        var lat = parseFloat(data.data.latitude);
-                        var lng = parseFloat(data.data.longitude);
+             if (data.success && data.data) {
+                 var lat = parseFloat(data.data.latitude);
+                  var lng = parseFloat(data.data.longitude);
 
-                        if (marker === null) {
-                            
-                            marker = L.marker([lat, lng], { icon: getSelectedIcon() }).addTo(map);
-                        } else {
-                            marker.setLatLng([lat, lng]);
-                            marker.setIcon(getSelectedIcon()); 
-                        }
+                 if (isTrackerActive) {
+                     locationHistory.push([lat, lng]);
+                 }
 
-                        map.setView([lat, lng]);
+                    if (marker === null) {
+                       marker = L.marker([lat, lng], { icon: getSelectedIcon() }).addTo(map);
+                   } else {
+                       marker.setLatLng([lat, lng]);
+                       marker.setIcon(getSelectedIcon());
+                  }
 
-                        mapContainer.style.display = 'block';
-                        locationStatusElement.style.display = 'none';
-                        locationDisabledImage.style.display = 'none';
-                    } else {
-                        mapContainer.style.display = 'none';
-                        locationStatusElement.style.display = 'block';
-                        locationDisabledImage.style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching location:', error);
-                });
-        }
+                  map.setView([lat, lng]);
+
+                   mapContainer.style.display = 'block';
+                   locationStatusElement.style.display = 'none';
+                   locationDisabledImage.style.display = 'none';
+               } else {
+                   mapContainer.style.display = 'none';
+                   locationStatusElement.style.display = 'block';
+                   locationDisabledImage.style.display = 'block';
+               }
+            })
+            .catch(error => {
+                console.error('Error fetching location:', error);
+            });
+    }
+
+
 
     updateLocation();
 
-    setInterval(updateLocation, 2000);
+    setInterval(function () {
+    updateLocation();
+    drawLocationHistory();
+}, 2000);
 
     function changeIcon(iconType) {
         currentIcon = iconType;
@@ -286,6 +298,19 @@ body {
         }
     }
     
+    function drawLocationHistory() {
+    if (isTrackerActive && locationHistory.length > 1) {
+        if (locationHistoryPolyline) {
+            map.removeLayer(locationHistoryPolyline);
+        }
+        locationHistoryPolyline = L.polyline(locationHistory, { color: 'blue' }).addTo(map);
+    } else if (locationHistoryPolyline) {
+        map.removeLayer(locationHistoryPolyline);
+        locationHistoryPolyline = null;
+    }
+}
+
+
     function updateCurrentAddress() {
     if (marker) {
         var lat = marker.getLatLng().lat;
@@ -318,7 +343,18 @@ body {
 
     updateCurrentAddress();
 
-    setInterval(updateCurrentAddress, 2500); 
+    setInterval(updateCurrentAddress, 5000); 
+
+    function toggleTracker() {
+    isTrackerActive = !isTrackerActive;
+
+    if (isTrackerActive) {
+        trackerStateSpan.textContent = 'On';
+    } else {
+        trackerStateSpan.textContent = 'Off';
+    }
+}
+    toggleButton.addEventListener('click', toggleTracker);
 </script>
 
 <div id="madeBy">
