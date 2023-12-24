@@ -176,13 +176,13 @@ body {
                 <p class="iconLabel">Pepper</p>
         </div>
     </div>
-<button id="toggleTracker">Location History: <span id="trackerState">OFF</span></button>
+<button id="toggleTracker">Location History: <span id="trackerState">ON</span></button>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
     var locationHistory = [];
     var locationHistoryPolyline = null;
-    var isTrackerActive = false;
+    var isTrackerActive = true;
     var toggleButton = document.getElementById('toggleTracker');
     var trackerStateSpan = document.getElementById('trackerState');
     var map = L.map('map').setView([0, 0], 18);
