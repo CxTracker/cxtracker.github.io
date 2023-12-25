@@ -299,24 +299,17 @@ var hasLoadedLocationHistory = false;
         }
     }
     
+
 function drawLocationHistory() {
     if (!hasLoadedLocationHistory) {
-        fetch('https://tracker.high420.pro:5000/get_location_data')  
+        fetch('https://tracker.high420.pro:5000/get_location_data')  // Replace with your server's IP and port
             .then(response => response.text())
             .then(data => {
-                // Split the text file into lines
+                // Split the text file into lines and parse each line as JSON
                 const lines = data.trim().split('\n');
-
-                // Parse each line directly as JSON
                 locationHistory = lines.map(line => {
-                    return JSON.parse(line);
-                });
-
-                // Extract latitude and longitude values from each entry
-                locationHistory = locationHistory.map(entry => {
-                    const latitude = parseFloat(entry.latitude);
-                    const longitude = parseFloat(entry.longitude);
-                    return [latitude, longitude];
+                    const entry = JSON.parse(line);
+                    return [entry.latitude, entry.longitude];
                 });
 
                 if (locationHistory.length > 1) {
