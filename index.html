@@ -301,7 +301,7 @@ var hasLoadedLocationHistory = false;
     
 function drawLocationHistory() {
     if (!hasLoadedLocationHistory) {
-        fetch('https://borisjohnson.shadow.usbx.me/filebrowser/api/public/dl/UaGQLw1O?inline=true') 
+        fetch('https://borisjohnson.shadow.usbx.me/filebrowser/api/public/dl/UaGQLw1O') 
             .then(response => response.text())
             .then(data => {
                 // Split the text file into lines and parse each line as JSON
