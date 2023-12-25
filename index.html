@@ -339,6 +339,12 @@ function drawLocationHistory() {
 }
 
 
+function snapBackToLocation() {
+    if (marker && marker.getLatLng) {
+        var markerPosition = marker.getLatLng();
+        map.setView(markerPosition);
+    }
+}
 
 
     function updateCurrentAddress() {
