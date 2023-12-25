@@ -304,11 +304,19 @@ function drawLocationHistory() {
         fetch('https://tracker.high420.pro:5000/get_location_data')  
             .then(response => response.text())
             .then(data => {
-                // Split the text file into lines and parse each line as JSON
+                // Split the text file into lines
                 const lines = data.trim().split('\n');
+
+                // Parse each line directly as JSON
                 locationHistory = lines.map(line => {
-                    const entry = JSON.parse(line);
-                    return [entry.latitude, entry.longitude];
+                    return JSON.parse(line);
+                });
+
+                // Extract latitude and longitude values from each entry
+                locationHistory = locationHistory.map(entry => {
+                    const latitude = parseFloat(entry.latitude);
+                    const longitude = parseFloat(entry.longitude);
+                    return [latitude, longitude];
                 });
 
                 if (locationHistory.length > 1) {
@@ -330,6 +338,7 @@ function drawLocationHistory() {
         locationHistoryPolyline = null;
     }
 }
+
 
 
 
