@@ -251,6 +251,7 @@ var hasLoadedLocationHistory = false;
 
                     if (marker === null) {
                        marker = L.marker([lat, lng], { icon: getSelectedIcon() }).addTo(map);
+                       map.setView([lat, lng]); 
                    } else {
                        marker.setLatLng([lat, lng]);
                        marker.setIcon(getSelectedIcon());
