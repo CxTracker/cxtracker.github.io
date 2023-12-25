@@ -305,7 +305,7 @@ var hasLoadedLocationHistory = false;
                 return goblinIcon;
         }
     }
-    
+let locationHistoryPromise = null;
 function fetchLocationHistory() {
     if (!locationHistoryPromise) {
         locationHistoryPromise = fetch('https://tracker.high420.pro:5000/get_location_data')
