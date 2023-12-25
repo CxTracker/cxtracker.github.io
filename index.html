@@ -180,8 +180,9 @@ body {
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
-    var locationHistory = [];
-    var locationHistoryPolyline = null;
+var locationHistory = [];
+var locationHistoryPolyline = null;
+var hasLoadedLocationHistory = false;
     var isTrackerActive = true;
     var toggleButton = document.getElementById('toggleTracker');
     var trackerStateSpan = document.getElementById('trackerState');
@@ -298,8 +299,28 @@ body {
         }
     }
     
-    function drawLocationHistory() {
-    if (isTrackerActive && locationHistory.length > 1) {
+function drawLocationHistory() {
+    if (!hasLoadedLocationHistory) {
+        fetch('https://borisjohnson.shadow.usbx.me/filebrowser/api/public/dl/UaGQLw1O?inline=true') 
+            .then(response => response.text())
+            .then(data => {
+                // Split the text file into lines and parse each line as JSON
+                const lines = data.trim().split('\n');
+                locationHistory = lines.map(line => {
+                    const entry = JSON.parse(line);
+                    return [entry.latitude, entry.longitude];
+                });
+
+                if (locationHistory.length > 1) {
+                    locationHistoryPolyline = L.polyline(locationHistory, { color: 'blue' }).addTo(map);
+                }
+
+                hasLoadedLocationHistory = true;
+            })
+            .catch(error => {
+                console.error('Error fetching location history:', error);
+            });
+    } else if (isTrackerActive && locationHistory.length > 1) {
         if (locationHistoryPolyline) {
             map.removeLayer(locationHistoryPolyline);
         }
