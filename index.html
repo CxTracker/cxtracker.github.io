@@ -301,7 +301,7 @@ var hasLoadedLocationHistory = false;
     
 function drawLocationHistory() {
     if (!hasLoadedLocationHistory) {
-        fetch('https://corsproxy.io/?https://borisjohnson.shadow.usbx.me/filebrowser/api/public/dl/UaGQLw1O') 
+        fetch('http://45.56.163.101:5000/get_location_data')  
             .then(response => response.text())
             .then(data => {
                 // Split the text file into lines and parse each line as JSON
@@ -330,6 +330,7 @@ function drawLocationHistory() {
         locationHistoryPolyline = null;
     }
 }
+
 
 
     function updateCurrentAddress() {
