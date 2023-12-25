@@ -145,6 +145,11 @@ body {
         font-size: 16px;
         margin-top: 5px; 
     }
+         #snapBackButton {
+            background-color: #fff;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -176,6 +181,9 @@ body {
                 <p class="iconLabel">Pepper</p>
         </div>
     </div>
+            <button id="snapBackButton" onclick="snapBackToLocation()">
+            <img src="https://i.imgur.com/wNUqC3W.png" alt="Snap Back" style="width: 24px; height: 24px;">
+        </button>
 <button id="toggleTracker">Location History: <span id="trackerState">ON</span></button>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
