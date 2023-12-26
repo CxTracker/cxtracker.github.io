@@ -150,9 +150,24 @@ body {
             border: none;
             cursor: pointer;
         }
+        #logo-container {
+            position: fixed;
+            top: 7px;
+            right: 10px;
+        }
+
+        #logo-container img {
+            width: 270px; 
+            height: 68px;
+            cursor: pointer;
     </style>
 </head>
 <body>
+    <div id="logo-container">
+        <a href="https://cxwatcher.github.io/boattrip" target="_blank">
+            <img src="https://i.imgur.com/SqOIt6C.png" alt="Logo">
+        </a>
+    </div>
     <div id="header">
         <h1>Real-Time Cx Tracker</h1>
         <h2 id="currentLocation" style="font-size: 16px;">Current Location:</h2>
