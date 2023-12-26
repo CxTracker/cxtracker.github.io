@@ -365,7 +365,7 @@ function snapBackToLocation() {
             'User-Agent': 'CxTracker'
         });
 
-        var request = new Request('https://geocode.maps.co/reverse?lat=' + lat + '&lon=' + lng, {
+        var request = new Request('https://geocode.maps.co/reverse?lat=' + lat + '&lon=' + lng + '&api_key=658a31faa6dd3794238372fdede6f89', {
             method: 'GET',
             headers: headers
         });
@@ -388,7 +388,7 @@ function snapBackToLocation() {
 
     updateCurrentAddress();
 
-    setInterval(updateCurrentAddress, 5000); 
+    setInterval(updateCurrentAddress, 10000); 
 
     function toggleTracker() {
     isTrackerActive = !isTrackerActive;
